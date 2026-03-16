@@ -88,7 +88,7 @@ export interface RunReport {
 
 // ── Config ──────────────────────────────────────────────────
 
-export type ModelProvider = "anthropic" | "openai";
+export type ModelProvider = "anthropic" | "openai" | "claude-cli";
 
 export interface ModelConfig {
   provider: ModelProvider;

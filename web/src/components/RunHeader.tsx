@@ -112,7 +112,7 @@ export function RunHeader({
       </div>
 
       {/* Secondary info row */}
-      {(consecutiveReverts >= 2 || (status === "running" && projectedRemaining > 0)) && (
+      {(status === "running" && (consecutiveReverts >= 2 || projectedRemaining > 0)) && (
         <div className="flex items-center gap-4 px-4 text-xs text-text-muted">
           {consecutiveReverts >= 2 && (
             <span className="text-amber-600">

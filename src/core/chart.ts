@@ -157,7 +157,7 @@ export function generateSVG(
       return `<text x="${padding.left + chartW + 8}" y="${(y + 4).toFixed(1)}" text-anchor="start" fill="#8b949e" font-size="10" font-family="monospace" opacity="0.6">$${val.toFixed(2)}</text>`;
     })
     .join("\n  ")}
-  <text x="${padding.left + chartW + 40}" y="${padding.top + chartH / 2}" text-anchor="middle" fill="#8b949e" font-size="11" font-family="system-ui" opacity="0.6" transform="rotate(90 ${padding.left + chartW + 40} ${padding.top + chartH / 2})">Cost</text>
+  <text x="${padding.left + chartW + 50}" y="${padding.top + chartH / 2}" text-anchor="middle" fill="#8b949e" font-size="11" font-family="system-ui" opacity="0.6" transform="rotate(90 ${padding.left + chartW + 50} ${padding.top + chartH / 2})">Cost</text>
 
   <!-- Annotations -->
   ${annotations}

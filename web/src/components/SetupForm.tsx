@@ -64,6 +64,7 @@ export function SetupForm() {
         throw new Error("Test cases must be a non-empty array");
       }
 
+      const isMaxModel = modelId.startsWith("max-");
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,7 +74,7 @@ export function SetupForm() {
           scoringCriteria: criteria,
           modelId,
           maxIterations,
-          maxCostUsd,
+          maxCostUsd: isMaxModel ? 999 : maxCostUsd,
         }),
       });
 
@@ -243,15 +244,21 @@ export function SetupForm() {
                 <label className="mb-1.5 block text-sm font-medium">
                   Max Cost (USD)
                 </label>
-                <input
-                  type="number"
-                  value={maxCostUsd}
-                  onChange={(e) => setMaxCostUsd(Number(e.target.value))}
-                  min={0.1}
-                  max={100}
-                  step={0.01}
-                  className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-mono focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
-                />
+                {modelId.startsWith("max-") ? (
+                  <div className="flex h-[42px] items-center rounded-xl border border-border bg-surface-alt px-4 text-sm text-text-muted">
+                    Covered by Claude Max plan
+                  </div>
+                ) : (
+                  <input
+                    type="number"
+                    value={maxCostUsd}
+                    onChange={(e) => setMaxCostUsd(Number(e.target.value))}
+                    min={0.1}
+                    max={100}
+                    step={0.01}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-mono focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
+                  />
+                )}
               </div>
             </div>
 

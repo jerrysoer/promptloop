@@ -1,11 +1,31 @@
 export interface ModelOption {
   id: string;
   label: string;
-  provider: "anthropic" | "openai";
+  provider: "anthropic" | "openai" | "claude-cli";
   model: string;
 }
 
 export const MODELS: ModelOption[] = [
+  // Claude Max (CLI) — flat-rate, no API key needed
+  {
+    id: "max-sonnet",
+    label: "Claude Max — Sonnet",
+    provider: "claude-cli",
+    model: "sonnet",
+  },
+  {
+    id: "max-opus",
+    label: "Claude Max — Opus",
+    provider: "claude-cli",
+    model: "opus",
+  },
+  {
+    id: "max-haiku",
+    label: "Claude Max — Haiku",
+    provider: "claude-cli",
+    model: "haiku",
+  },
+  // API providers — per-token billing
   {
     id: "claude-sonnet-4-5",
     label: "Claude Sonnet 4.5",

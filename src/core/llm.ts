@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import type {
@@ -185,6 +186,168 @@ async function openaiToolUse(
   };
 }
 
+// ── Claude CLI provider ─────────────────────────────────────
+
+function runCLI(args: string[], stdin: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn("claude", args, {
+      stdio: ["pipe", "pipe", "pipe"],
+      env: { ...process.env },
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    proc.stdout.on("data", (chunk: Buffer) => {
+      stdout += chunk.toString();
+    });
+    proc.stderr.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+
+    proc.on("error", (err: NodeJS.ErrnoException) => {
+      if (err.code === "ENOENT") {
+        reject(
+          new Error(
+            "Claude CLI not found. Install Claude Code or use an API provider.",
+          ),
+        );
+      } else {
+        reject(err);
+      }
+    });
+
+    proc.on("close", (code) => {
+      if (code !== 0) {
+        reject(new Error(`Claude CLI exited with code ${code}: ${stderr}`));
+      } else {
+        resolve(stdout);
+      }
+    });
+
+    proc.stdin.write(stdin);
+    proc.stdin.end();
+  });
+}
+
+export interface CLIResponse {
+  result: string;
+  usage: { input_tokens: number; output_tokens: number };
+  total_cost_usd: number;
+}
+
+export interface CLIStructuredResponse extends CLIResponse {
+  structured_output?: Record<string, unknown>;
+}
+
+async function cliComplete(
+  config: ModelConfig,
+  systemPrompt: string,
+  userMessage: string,
+): Promise<LLMResponse> {
+  const args = [
+    "--print",
+    "--system-prompt",
+    systemPrompt,
+    "--output-format",
+    "json",
+    "--tools",
+    "",
+    "--model",
+    config.model,
+  ];
+
+  const raw = await runCLI(args, userMessage);
+  const json = JSON.parse(raw) as CLIResponse;
+  return parseCompleteResponse(json);
+}
+
+/** Converts Anthropic Tool[] into a single JSON schema for --json-schema. Exported for testing. */
+export function buildToolSchema(tools: Anthropic.Tool[]): {
+  type: "object";
+  properties: Record<string, unknown>;
+  required: string[];
+} {
+  const strategyEnum = tools.map((t) => t.name);
+  const properties: Record<string, unknown> = {
+    strategy: { type: "string", enum: strategyEnum },
+  };
+  const required = ["strategy"];
+
+  const firstSchema = tools[0]?.input_schema as
+    | { properties?: Record<string, unknown>; required?: string[] }
+    | undefined;
+  if (firstSchema?.properties) {
+    for (const [key, val] of Object.entries(firstSchema.properties)) {
+      properties[key] = val;
+    }
+  }
+  if (firstSchema?.required) {
+    required.push(...firstSchema.required);
+  }
+
+  return { type: "object", properties, required };
+}
+
+/** Parses CLI structured_output into LLMToolResponse shape. Exported for testing. */
+export function parseToolResponse(json: CLIStructuredResponse): LLMToolResponse {
+  if (!json.structured_output) {
+    throw new Error(
+      `Claude CLI did not return structured_output. Raw result: ${json.result}`,
+    );
+  }
+
+  const { strategy, ...inputFields } = json.structured_output as {
+    strategy: string;
+    [key: string]: unknown;
+  };
+
+  return {
+    toolCalls: [{ name: strategy, input: inputFields as Record<string, unknown> }],
+    inputTokens: json.usage.input_tokens,
+    outputTokens: json.usage.output_tokens,
+    costUsd: json.total_cost_usd,
+  };
+}
+
+/** Parses CLI JSON response into LLMResponse shape. Exported for testing. */
+export function parseCompleteResponse(json: CLIResponse): LLMResponse {
+  return {
+    content: json.result,
+    inputTokens: json.usage.input_tokens,
+    outputTokens: json.usage.output_tokens,
+    costUsd: json.total_cost_usd,
+  };
+}
+
+async function cliToolUse(
+  config: ModelConfig,
+  systemPrompt: string,
+  userMessage: string,
+  tools: Anthropic.Tool[],
+): Promise<LLMToolResponse> {
+  const schema = buildToolSchema(tools);
+  const jsonSchema = JSON.stringify(schema);
+
+  const args = [
+    "--print",
+    "--system-prompt",
+    systemPrompt,
+    "--output-format",
+    "json",
+    "--tools",
+    "",
+    "--json-schema",
+    jsonSchema,
+    "--model",
+    config.model,
+  ];
+
+  const raw = await runCLI(args, userMessage);
+  const json = JSON.parse(raw) as CLIStructuredResponse;
+  return parseToolResponse(json);
+}
+
 // ── Public API ──────────────────────────────────────────────
 
 export async function complete(
@@ -192,6 +355,9 @@ export async function complete(
   systemPrompt: string,
   userMessage: string,
 ): Promise<LLMResponse> {
+  if (config.provider === "claude-cli") {
+    return cliComplete(config, systemPrompt, userMessage);
+  }
   if (config.provider === "anthropic") {
     return anthropicComplete(config, systemPrompt, userMessage);
   }
@@ -204,6 +370,9 @@ export async function toolUse(
   userMessage: string,
   tools: Anthropic.Tool[],
 ): Promise<LLMToolResponse> {
+  if (config.provider === "claude-cli") {
+    return cliToolUse(config, systemPrompt, userMessage, tools);
+  }
   if (config.provider === "anthropic") {
     return anthropicToolUse(config, systemPrompt, userMessage, tools);
   }
