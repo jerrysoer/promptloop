@@ -13,7 +13,7 @@ export function generateSVG(
   options: ChartOptions = {},
 ): string {
   const { width = 800, height = 400, title = "PromptLoop Optimization" } = options;
-  const padding = { top: 50, right: 30, bottom: 50, left: 60 };
+  const padding = { top: 50, right: 60, bottom: 50, left: 60 };
 
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
@@ -54,6 +54,30 @@ export function generateSVG(
   // Kept/reverted markers
   const keptPoints = points.filter((_, i) => i > 0 && history[i]?.kept);
   const revertedPoints = points.filter((_, i) => i > 0 && !history[i]?.kept);
+
+  // Cumulative cost line
+  const cumulativeCosts: number[] = [];
+  let runningCost = 0;
+  for (const h of history) {
+    runningCost += h.costUsd;
+    cumulativeCosts.push(runningCost);
+  }
+  const maxCost = runningCost || 1;
+  const costPoints = cumulativeCosts.map((cost, i) => {
+    const x = padding.left + (i / Math.max(cumulativeCosts.length - 1, 1)) * chartW;
+    const y = padding.top + chartH - (cost / maxCost) * chartH;
+    return { x, y, cost };
+  });
+  const costLinePath = costPoints
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+    .join(" ");
+
+  // Right-side cost Y-axis ticks
+  const costTicks = 4;
+  const costTickValues = Array.from(
+    { length: costTicks + 1 },
+    (_, i) => (maxCost * i) / costTicks,
+  );
 
   // Mutation strategy labels for kept iterations
   const annotations = keptPoints
@@ -124,6 +148,16 @@ export function generateSVG(
 
   <!-- Best score marker -->
   ${points[bestIdx] ? `<circle cx="${points[bestIdx].x.toFixed(1)}" cy="${points[bestIdx].y.toFixed(1)}" r="6" fill="#58a6ff" stroke="#e6edf3" stroke-width="2"/>` : ""}
+
+  <!-- Cumulative cost line (dashed, right Y-axis) -->
+  <path d="${costLinePath}" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.6"/>
+  ${costTickValues
+    .map((val) => {
+      const y = padding.top + chartH - (val / maxCost) * chartH;
+      return `<text x="${padding.left + chartW + 8}" y="${(y + 4).toFixed(1)}" text-anchor="start" fill="#8b949e" font-size="10" font-family="monospace" opacity="0.6">$${val.toFixed(2)}</text>`;
+    })
+    .join("\n  ")}
+  <text x="${padding.left + chartW + 40}" y="${padding.top + chartH / 2}" text-anchor="middle" fill="#8b949e" font-size="11" font-family="system-ui" opacity="0.6" transform="rotate(90 ${padding.left + chartW + 40} ${padding.top + chartH / 2})">Cost</text>
 
   <!-- Annotations -->
   ${annotations}

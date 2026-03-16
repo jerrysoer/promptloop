@@ -7,12 +7,17 @@ import { appendIteration, hashPrompt, readHistory } from "./history.js";
 import { generatePNG } from "./chart.js";
 import type {
   IterationResult,
+  MutationStrategy,
   PromptLoopConfig,
   RunReport,
+  StopReason,
   TestCase,
 } from "./types.js";
 
 // ── Run Options ─────────────────────────────────────────────
+
+/** Per-strategy success tracking for the mutator */
+export type StrategyStats = Record<MutationStrategy, { attempts: number; kept: number }>;
 
 export interface RunOptions {
   promptPath: string;
@@ -22,13 +27,16 @@ export interface RunOptions {
   evalFn?: EvalFunction;
   /** Called after each iteration (baseline + loop). Enables real-time streaming. */
   onIteration?: (result: IterationResult) => void;
+  /** AbortSignal for cancel support */
+  signal?: AbortSignal;
 }
 
 // ── Main Optimization Loop ──────────────────────────────────
 
 export async function run(options: RunOptions): Promise<RunReport> {
-  const { promptPath, testCasesPath, config, outputDir, evalFn, onIteration } = options;
+  const { promptPath, testCasesPath, config, outputDir, evalFn, onIteration, signal } = options;
   const startedAt = new Date().toISOString();
+  const plateauThreshold = config.plateauThreshold ?? 5;
 
   // Ensure output directory exists
   if (!existsSync(outputDir)) {
@@ -61,7 +69,17 @@ export async function run(options: RunOptions): Promise<RunReport> {
   let bestScore = 0;
   let bestPrompt = currentPrompt;
   let bestIteration = 0;
+  let consecutiveReverts = 0;
+  let stopReason: StopReason = "completed";
   const history: IterationResult[] = [];
+  const strategyStats: StrategyStats = {
+    sharpen: { attempts: 0, kept: 0 },
+    add_example: { attempts: 0, kept: 0 },
+    remove: { attempts: 0, kept: 0 },
+    restructure: { attempts: 0, kept: 0 },
+    constrain: { attempts: 0, kept: 0 },
+    expand: { attempts: 0, kept: 0 },
+  };
 
   // ── Baseline ────────────────────────────────────────────
 
@@ -92,11 +110,19 @@ export async function run(options: RunOptions): Promise<RunReport> {
   // ── Optimization Loop ───────────────────────────────────
 
   for (let i = 1; i <= config.maxIterations; i++) {
+    // Check cancel signal
+    if (signal?.aborted) {
+      consola.warn("Run cancelled by user.");
+      stopReason = "cancelled";
+      break;
+    }
+
     // Check cost budget
     if (totalCost >= config.maxCostUsd) {
       consola.warn(
         `Cost budget exceeded ($${totalCost.toFixed(2)} / $${config.maxCostUsd}). Stopping.`,
       );
+      stopReason = "budget";
       break;
     }
 
@@ -105,6 +131,16 @@ export async function run(options: RunOptions): Promise<RunReport> {
       consola.success(
         `Target score ${config.targetScore} reached at iteration ${i - 1}. Stopping.`,
       );
+      stopReason = "target";
+      break;
+    }
+
+    // Check plateau
+    if (consecutiveReverts >= plateauThreshold) {
+      consola.warn(
+        `Plateau detected: ${consecutiveReverts} consecutive reverts. Stopping.`,
+      );
+      stopReason = "plateau";
       break;
     }
 
@@ -121,7 +157,7 @@ export async function run(options: RunOptions): Promise<RunReport> {
         currentPrompt,
         latestScores,
         history,
-        { optimizerModel: config.optimizerModel },
+        { optimizerModel: config.optimizerModel, strategyStats },
       );
       mutation = mutResult.mutation;
       mutationCost = mutResult.cost;
@@ -134,6 +170,9 @@ export async function run(options: RunOptions): Promise<RunReport> {
     consola.info(`  Strategy: ${mutation.strategy}`);
     consola.info(`  ${mutation.description}`);
 
+    // Track strategy attempt
+    strategyStats[mutation.strategy].attempts++;
+
     // Score the mutated prompt
     const { result: mutatedResult, totalCost: scoreCost } = await scorePrompt(
       mutation.newPrompt,
@@ -145,6 +184,13 @@ export async function run(options: RunOptions): Promise<RunReport> {
     const iterationCost = mutationCost + scoreCost;
     const kept = mutatedResult.average > bestScore;
 
+    if (kept) {
+      consecutiveReverts = 0;
+      strategyStats[mutation.strategy].kept++;
+    } else {
+      consecutiveReverts++;
+    }
+
     const iterationResult: IterationResult = {
       iteration: i,
       timestamp: new Date().toISOString(),
@@ -153,6 +199,7 @@ export async function run(options: RunOptions): Promise<RunReport> {
       kept,
       promptHash: hashPrompt(mutation.newPrompt),
       costUsd: iterationCost,
+      consecutiveReverts,
     };
 
     appendIteration(historyPath, iterationResult);
@@ -203,6 +250,8 @@ export async function run(options: RunOptions): Promise<RunReport> {
     totalCostUsd: totalCost,
     bestIteration,
     history,
+    stopReason,
+    maxCostUsd: config.maxCostUsd,
   };
 
   writeFileSync(reportPath, JSON.stringify(report, null, 2), "utf-8");

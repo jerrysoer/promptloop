@@ -10,6 +10,7 @@ export type {
   Mutation,
   IterationResult,
   RunReport,
+  StopReason,
   ModelProvider,
   ModelConfig,
   PromptLoopConfig,
@@ -20,7 +21,7 @@ export type {
 
 export { scorePrompt, type EvalFunction, type ScorerOptions } from "./core/scorer.js";
 export { generateMutation, type MutatorOptions } from "./core/mutator.js";
-export { run, type RunOptions } from "./core/runner.js";
+export { run, type RunOptions, type StrategyStats } from "./core/runner.js";
 export { appendIteration, readHistory, hashPrompt } from "./core/history.js";
 export { generateSVG, generatePNG } from "./core/chart.js";
 export { complete, toolUse } from "./core/llm.js";

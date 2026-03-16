@@ -2,7 +2,7 @@ node_modules/
 dist/
 .next/
 .promptloop/
-runs/
+/runs/
 .claude/
 *.tgz
 .DS_Store

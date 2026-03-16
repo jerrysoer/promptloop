@@ -62,9 +62,13 @@ export interface IterationResult {
   kept: boolean;
   promptHash: string;
   costUsd: number;
+  /** Number of consecutive reverted iterations (resets on kept) */
+  consecutiveReverts?: number;
 }
 
 // ── Run Report ──────────────────────────────────────────────
+
+export type StopReason = "completed" | "budget" | "target" | "plateau" | "cancelled";
 
 export interface RunReport {
   startedAt: string;
@@ -76,6 +80,10 @@ export interface RunReport {
   totalCostUsd: number;
   bestIteration: number;
   history: IterationResult[];
+  /** Why the run stopped */
+  stopReason?: StopReason;
+  /** Budget ceiling for cost projection in UI */
+  maxCostUsd?: number;
 }
 
 // ── Config ──────────────────────────────────────────────────
@@ -108,6 +116,8 @@ export interface PromptLoopConfig {
   failureReportSize: number;
   /** Stop early if score reaches this threshold */
   targetScore?: number;
+  /** Stop if this many consecutive iterations are reverted (default 5) */
+  plateauThreshold?: number;
 }
 
 // ── LLM Abstraction ─────────────────────────────────────────

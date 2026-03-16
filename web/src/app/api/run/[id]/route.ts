@@ -25,6 +25,7 @@ export async function GET(
     status: activeRun.status,
     history: activeRun.history,
     maxIterations: activeRun.maxIterations,
+    maxCostUsd: activeRun.maxCostUsd,
     startedAt: activeRun.startedAt,
     report: activeRun.report,
     originalPrompt: activeRun.originalPrompt,
@@ -47,6 +48,7 @@ function createSSEResponse(
           `event: init\ndata: ${JSON.stringify({
             status: activeRun.status,
             maxIterations: activeRun.maxIterations,
+            maxCostUsd: activeRun.maxCostUsd,
             startedAt: activeRun.startedAt,
             originalPrompt: activeRun.originalPrompt,
           })}\n\n`,
@@ -86,6 +88,19 @@ function createSSEResponse(
         return;
       }
 
+      if (activeRun.status === "cancelled") {
+        controller.enqueue(
+          encoder.encode(
+            `event: cancelled\ndata: ${JSON.stringify({
+              report: activeRun.report,
+              optimizedPrompt: activeRun.optimizedPrompt,
+            })}\n\n`,
+          ),
+        );
+        controller.close();
+        return;
+      }
+
       // Register listener for live updates
       const listener = (data: string) => {
         try {
@@ -93,7 +108,8 @@ function createSSEResponse(
           // Close stream on terminal events
           if (
             data.startsWith("event: complete") ||
-            data.startsWith("event: run_error")
+            data.startsWith("event: run_error") ||
+            data.startsWith("event: cancelled")
           ) {
             controller.close();
             activeRun.listeners.delete(listener);

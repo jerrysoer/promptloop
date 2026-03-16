@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Lora } from "next/font/google";
 import "./globals.css";
 
@@ -22,6 +23,14 @@ export default function RootLayout({
     <html lang="en" className={lora.variable}>
       <body className="bg-bg text-text antialiased">
         <div className="mx-auto max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
+          <nav className="mb-8 flex items-center gap-6 text-sm">
+            <Link href="/" className="font-heading text-lg font-semibold hover:text-accent transition-colors">
+              PromptLoop
+            </Link>
+            <Link href="/runs" className="text-text-muted hover:text-text transition-colors">
+              Runs
+            </Link>
+          </nav>
           {children}
         </div>
       </body>

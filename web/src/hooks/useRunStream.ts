@@ -5,8 +5,9 @@ import type { IterationResult, RunReport } from "promptloop";
 
 export interface RunStreamState {
   iterations: IterationResult[];
-  status: "connecting" | "running" | "completed" | "error";
+  status: "connecting" | "running" | "completed" | "error" | "cancelled";
   maxIterations: number;
+  maxCostUsd: number;
   startedAt: number;
   report?: RunReport;
   originalPrompt: string;
@@ -19,6 +20,7 @@ export function useRunStream(runId: string): RunStreamState {
     iterations: [],
     status: "connecting",
     maxIterations: 0,
+    maxCostUsd: 0,
     startedAt: 0,
     originalPrompt: "",
   });
@@ -30,6 +32,7 @@ export function useRunStream(runId: string): RunStreamState {
       const data = JSON.parse(event.data) as {
         status: string;
         maxIterations: number;
+        maxCostUsd: number;
         startedAt: number;
         originalPrompt: string;
       };
@@ -37,6 +40,7 @@ export function useRunStream(runId: string): RunStreamState {
         ...prev,
         status: data.status === "running" ? "running" : prev.status,
         maxIterations: data.maxIterations,
+        maxCostUsd: data.maxCostUsd ?? 0,
         startedAt: data.startedAt,
         originalPrompt: data.originalPrompt,
       }));
@@ -78,6 +82,20 @@ export function useRunStream(runId: string): RunStreamState {
         ...prev,
         status: "error",
         error: data.error,
+      }));
+      es.close();
+    });
+
+    es.addEventListener("cancelled", (event) => {
+      const data = JSON.parse(event.data) as {
+        report: RunReport;
+        optimizedPrompt: string;
+      };
+      setState((prev) => ({
+        ...prev,
+        status: "cancelled",
+        report: data.report,
+        optimizedPrompt: data.optimizedPrompt,
       }));
       es.close();
     });

@@ -1,5 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { toolUse } from "./llm.js";
+import type { StrategyStats } from "./runner.js";
 import type {
   IterationResult,
   ModelConfig,
@@ -141,7 +142,8 @@ Rules:
 3. Be surgical: small, targeted changes beat large rewrites
 4. Preserve what is working — do not rewrite sections that score well
 5. Learn from history: if a strategy was reverted, try a different approach
-6. The new_prompt field must contain the COMPLETE updated prompt text
+6. Prioritize strategies with higher success rates (see Strategy Performance below)
+7. The new_prompt field must contain the COMPLETE updated prompt text
 
 Think step by step:
 1. What patterns do you see in the failing test cases?
@@ -155,6 +157,7 @@ function buildOptimizerMessage(
   currentPrompt: string,
   failureReport: ScoreResult,
   history: IterationResult[],
+  strategyStats?: StrategyStats,
 ): string {
   let msg = `## Current Prompt\n\`\`\`\n${currentPrompt}\n\`\`\`\n\n`;
 
@@ -178,6 +181,18 @@ function buildOptimizerMessage(
     }
   }
 
+  // Strategy performance section
+  if (strategyStats) {
+    const used = Object.entries(strategyStats).filter(([, s]) => s.attempts > 0);
+    if (used.length > 0) {
+      msg += `\n## Strategy Performance\n`;
+      for (const [name, stats] of used) {
+        const pct = Math.round((stats.kept / stats.attempts) * 100);
+        msg += `- ${name}: ${stats.attempts} attempts, ${stats.kept} kept (${pct}%)\n`;
+      }
+    }
+  }
+
   return msg;
 }
 
@@ -185,6 +200,8 @@ function buildOptimizerMessage(
 
 export interface MutatorOptions {
   optimizerModel: ModelConfig;
+  /** Per-strategy success tracking for smarter mutation selection */
+  strategyStats?: StrategyStats;
 }
 
 export async function generateMutation(
@@ -193,7 +210,7 @@ export async function generateMutation(
   history: IterationResult[],
   options: MutatorOptions,
 ): Promise<{ mutation: Mutation; cost: number }> {
-  const message = buildOptimizerMessage(currentPrompt, failureReport, history);
+  const message = buildOptimizerMessage(currentPrompt, failureReport, history, options.strategyStats);
 
   const response = await toolUse(
     options.optimizerModel,

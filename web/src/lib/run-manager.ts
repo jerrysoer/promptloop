@@ -4,6 +4,7 @@ import {
   readFileSync,
   mkdirSync,
   existsSync,
+  readdirSync,
 } from "node:fs";
 import { join } from "node:path";
 import { run, generateSVG } from "promptloop";
@@ -19,9 +20,10 @@ import { MODELS } from "./models";
 
 export interface ActiveRun {
   id: string;
-  status: "running" | "completed" | "error";
+  status: "running" | "completed" | "error" | "cancelled";
   history: IterationResult[];
   maxIterations: number;
+  maxCostUsd: number;
   startedAt: number;
   report?: RunReport;
   originalPrompt: string;
@@ -29,17 +31,29 @@ export interface ActiveRun {
   error?: string;
   listeners: Set<(data: string) => void>;
   outputDir: string;
+  abortController?: AbortController;
 }
 
 export interface RunState {
-  status: "running" | "completed" | "error";
+  status: "running" | "completed" | "error" | "cancelled";
   history: IterationResult[];
   maxIterations: number;
+  maxCostUsd: number;
   startedAt: number;
   report?: RunReport;
   originalPrompt: string;
   optimizedPrompt?: string;
   error?: string;
+}
+
+export interface RunSummary {
+  id: string;
+  startedAt: number;
+  status: "running" | "completed" | "error" | "cancelled";
+  baselineScore?: number;
+  finalScore?: number;
+  totalCostUsd?: number;
+  iterations?: number;
 }
 
 export interface StartRunParams {
@@ -93,15 +107,19 @@ export function startRun(params: StartRunParams): string {
     failureReportSize: 3,
   };
 
+  const abortController = new AbortController();
+
   const activeRun: ActiveRun = {
     id,
     status: "running",
     history: [],
     maxIterations: params.maxIterations,
+    maxCostUsd: params.maxCostUsd,
     startedAt: Date.now(),
     originalPrompt: params.prompt,
     listeners: new Set(),
     outputDir,
+    abortController,
   };
 
   getActiveRuns().set(id, activeRun);
@@ -111,6 +129,7 @@ export function startRun(params: StartRunParams): string {
     testCasesPath,
     config,
     outputDir,
+    signal: abortController.signal,
     onIteration: (result) => {
       activeRun.history.push(result);
       const event = `data: ${JSON.stringify(result)}\n\n`;
@@ -120,17 +139,29 @@ export function startRun(params: StartRunParams): string {
     },
   })
     .then((report) => {
-      activeRun.status = "completed";
+      const isCancelled = report.stopReason === "cancelled";
+      activeRun.status = isCancelled ? "cancelled" : "completed";
       activeRun.report = report;
       activeRun.optimizedPrompt = readFileSync(promptPath, "utf-8");
 
-      const event =
-        `event: complete\ndata: ${JSON.stringify({
-          report,
-          optimizedPrompt: activeRun.optimizedPrompt,
-        })}\n\n`;
-      for (const listener of activeRun.listeners) {
-        listener(event);
+      if (isCancelled) {
+        const event =
+          `event: cancelled\ndata: ${JSON.stringify({
+            report,
+            optimizedPrompt: activeRun.optimizedPrompt,
+          })}\n\n`;
+        for (const listener of activeRun.listeners) {
+          listener(event);
+        }
+      } else {
+        const event =
+          `event: complete\ndata: ${JSON.stringify({
+            report,
+            optimizedPrompt: activeRun.optimizedPrompt,
+          })}\n\n`;
+        for (const listener of activeRun.listeners) {
+          listener(event);
+        }
       }
     })
     .catch((err) => {
@@ -165,11 +196,13 @@ export function getRun(id: string): ActiveRun | null {
       : undefined;
 
     // Reconstruct as a completed ActiveRun
+    const status = report.stopReason === "cancelled" ? "cancelled" as const : "completed" as const;
     const reconstructed: ActiveRun = {
       id,
-      status: "completed",
+      status,
       history: report.history,
       maxIterations: report.iterations,
+      maxCostUsd: report.maxCostUsd ?? 0,
       startedAt: new Date(report.startedAt).getTime(),
       report,
       originalPrompt: "", // lost after restart
@@ -189,6 +222,71 @@ export function getRunSVG(id: string): string | null {
   const activeRun = getRun(id);
   if (!activeRun || activeRun.history.length === 0) return null;
   return generateSVG(activeRun.history);
+}
+
+export function cancelRun(id: string): boolean {
+  const activeRun = getActiveRuns().get(id);
+  if (!activeRun || activeRun.status !== "running") return false;
+  activeRun.abortController?.abort();
+  return true;
+}
+
+export function listRuns(): RunSummary[] {
+  const summaries: RunSummary[] = [];
+
+  // In-memory runs
+  for (const [, activeRun] of getActiveRuns()) {
+    const baseline = activeRun.history[0]?.scores.average;
+    const best = activeRun.report?.finalScore ??
+      (activeRun.history.length > 0
+        ? Math.max(...activeRun.history.map((h) => h.scores.average))
+        : undefined);
+    const cost = activeRun.report?.totalCostUsd ??
+      activeRun.history.reduce((s, h) => s + h.costUsd, 0);
+
+    summaries.push({
+      id: activeRun.id,
+      startedAt: activeRun.startedAt,
+      status: activeRun.status,
+      baselineScore: baseline,
+      finalScore: best,
+      totalCostUsd: cost,
+      iterations: activeRun.report?.iterations ?? Math.max(0, activeRun.history.length - 1),
+    });
+  }
+
+  // Filesystem runs not yet in memory
+  if (existsSync(RUNS_DIR)) {
+    const dirs = readdirSync(RUNS_DIR, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    for (const dir of dirs) {
+      if (getActiveRuns().has(dir)) continue;
+
+      const reportPath = join(RUNS_DIR, dir, "report.json");
+      if (!existsSync(reportPath)) continue;
+
+      try {
+        const report = JSON.parse(readFileSync(reportPath, "utf-8")) as RunReport;
+        summaries.push({
+          id: dir,
+          startedAt: new Date(report.startedAt).getTime(),
+          status: report.stopReason === "cancelled" ? "cancelled" : "completed",
+          baselineScore: report.baselineScore,
+          finalScore: report.finalScore,
+          totalCostUsd: report.totalCostUsd,
+          iterations: report.iterations,
+        });
+      } catch {
+        // Corrupted report, skip
+      }
+    }
+  }
+
+  // Sort by date descending
+  summaries.sort((a, b) => b.startedAt - a.startedAt);
+  return summaries;
 }
 
 // ── Helpers ─────────────────────────────────────────────────
