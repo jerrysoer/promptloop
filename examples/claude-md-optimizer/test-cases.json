@@ -1,0 +1,52 @@
+[
+  {
+    "id": "nextjs-saas",
+    "input": "Next.js 15 SaaS app with Supabase auth, Stripe billing, and Tailwind CSS. App Router, TypeScript strict mode. Deployed on Vercel.",
+    "expected": "A CLAUDE.md covering build commands, App Router patterns, Supabase RLS, Stripe webhook handling, and Tailwind conventions"
+  },
+  {
+    "id": "rust-cli",
+    "input": "Rust CLI tool for parsing and transforming CSV files. Uses clap for argument parsing, serde for serialization. Published on crates.io.",
+    "expected": "A CLAUDE.md covering cargo commands, module structure, error handling patterns, and testing conventions"
+  },
+  {
+    "id": "python-ml",
+    "input": "Python ML pipeline using PyTorch, Weights & Biases for experiment tracking, and FastAPI for model serving. Uses Poetry for deps.",
+    "expected": "A CLAUDE.md covering training scripts, model architecture, API endpoints, and experiment tracking setup"
+  },
+  {
+    "id": "go-microservice",
+    "input": "Go microservice handling payment processing. gRPC API, PostgreSQL with sqlc, deployed on Kubernetes. Uses wire for DI.",
+    "expected": "A CLAUDE.md covering proto generation, sqlc workflow, testing with testcontainers, and K8s deployment"
+  },
+  {
+    "id": "react-native-app",
+    "input": "React Native app for iOS and Android. Expo managed workflow, React Navigation, Zustand state management, and Firebase backend.",
+    "expected": "A CLAUDE.md covering Expo commands, navigation structure, state patterns, and Firebase security rules"
+  },
+  {
+    "id": "django-api",
+    "input": "Django REST Framework API with Celery for background tasks, Redis for caching, and PostgreSQL. Docker Compose for local dev.",
+    "expected": "A CLAUDE.md covering manage.py commands, serializer patterns, Celery task conventions, and docker-compose usage"
+  },
+  {
+    "id": "chrome-extension",
+    "input": "Chrome extension with React popup, content scripts, and a background service worker. Uses Plasmo framework and Chrome Storage API.",
+    "expected": "A CLAUDE.md covering Plasmo build, manifest permissions, messaging patterns, and storage conventions"
+  },
+  {
+    "id": "monorepo-design-system",
+    "input": "Turborepo monorepo with a React component library, Storybook docs, and three consuming apps. Uses pnpm workspaces and changesets.",
+    "expected": "A CLAUDE.md covering workspace structure, component patterns, Storybook conventions, and publishing workflow"
+  },
+  {
+    "id": "elixir-realtime",
+    "input": "Elixir Phoenix LiveView app for real-time collaboration. Uses Ecto with PostgreSQL, PubSub for presence, and Oban for jobs.",
+    "expected": "A CLAUDE.md covering mix commands, LiveView patterns, PubSub channels, and Oban job conventions"
+  },
+  {
+    "id": "terraform-infra",
+    "input": "Terraform infrastructure for AWS. Modules for VPC, ECS, RDS, and CloudFront. Uses Terragrunt for environment management and Atlantis for PR automation.",
+    "expected": "A CLAUDE.md covering terraform/terragrunt commands, module conventions, state management, and PR workflow"
+  }
+]

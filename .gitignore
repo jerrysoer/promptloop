@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.next/
+.promptloop/
+runs/
+.claude/
+*.tgz
+.DS_Store
+.env.local

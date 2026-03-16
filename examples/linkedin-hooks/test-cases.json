@@ -1,0 +1,52 @@
+[
+  {
+    "id": "career-change",
+    "input": "I quit my $300k FAANG job to build a startup",
+    "expected": "A specific, tension-building hook about leaving a high-paying job"
+  },
+  {
+    "id": "hiring-mistake",
+    "input": "The most expensive hiring mistake I ever made",
+    "expected": "A hook that creates curiosity about a specific costly error"
+  },
+  {
+    "id": "ai-tools",
+    "input": "How I use AI tools to 10x my productivity",
+    "expected": "A specific, credible hook about AI productivity gains"
+  },
+  {
+    "id": "management-lesson",
+    "input": "The leadership lesson I learned from my worst manager",
+    "expected": "A hook that creates tension about a bad management experience"
+  },
+  {
+    "id": "remote-work",
+    "input": "Why I moved my entire team back to the office",
+    "expected": "A contrarian hook about returning to office work"
+  },
+  {
+    "id": "fundraising",
+    "input": "We raised $5M in 2 weeks — here is exactly how",
+    "expected": "A specific, credible hook about fundraising speed"
+  },
+  {
+    "id": "burnout",
+    "input": "I burned out so badly I could not open my laptop for 3 months",
+    "expected": "A vulnerable, specific hook about burnout"
+  },
+  {
+    "id": "cold-email",
+    "input": "The cold email template that gets 40% reply rates",
+    "expected": "A specific, results-oriented hook about outreach"
+  },
+  {
+    "id": "product-launch",
+    "input": "Our product launch flopped. Then we did this.",
+    "expected": "A hook with narrative tension about recovery from failure"
+  },
+  {
+    "id": "salary-negotiation",
+    "input": "How I negotiated a 60% raise without threatening to quit",
+    "expected": "A specific, actionable hook about salary negotiation"
+  }
+]

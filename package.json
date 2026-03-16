@@ -1,0 +1,63 @@
+{
+  "name": "promptloop",
+  "version": "0.1.0",
+  "description": "Autonomous prompt optimizer using the Karpathy autoresearch pattern",
+  "type": "module",
+  "bin": {
+    "promptloop": "./dist/cli/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "program.md",
+    "promptloop.config.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "prompt",
+    "optimization",
+    "llm",
+    "claude",
+    "openai",
+    "autoresearch",
+    "prompt-engineering",
+    "ai"
+  ],
+  "author": "Jerry Soer",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jerrysoer/promptloop.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "citty": "^0.1.6",
+    "consola": "^3.4.0",
+    "openai": "^4.85.0",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

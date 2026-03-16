@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-accent: #2563eb;
+  --color-accent-light: #dbeafe;
+  --color-kept: #16a34a;
+  --color-kept-light: #dcfce7;
+  --color-reverted: #dc2626;
+  --color-reverted-light: #fee2e2;
+  --color-card: #f9fafb;
+  --color-border: #e5e7eb;
+  --color-muted: #6b7280;
+
+  --color-strategy-sharpen: #2563eb;
+  --color-strategy-add-example: #7c3aed;
+  --color-strategy-remove: #ea580c;
+  --color-strategy-restructure: #0d9488;
+  --color-strategy-constrain: #ca8a04;
+  --color-strategy-expand: #16a34a;
+
+  --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+}
