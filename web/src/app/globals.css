@@ -1,22 +1,31 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-accent: #2563eb;
-  --color-accent-light: #dbeafe;
-  --color-kept: #16a34a;
-  --color-kept-light: #dcfce7;
-  --color-reverted: #dc2626;
-  --color-reverted-light: #fee2e2;
-  --color-card: #f9fafb;
-  --color-border: #e5e7eb;
-  --color-muted: #6b7280;
+  --font-heading: var(--font-lora), serif;
 
-  --color-strategy-sharpen: #2563eb;
-  --color-strategy-add-example: #7c3aed;
-  --color-strategy-remove: #ea580c;
-  --color-strategy-restructure: #0d9488;
-  --color-strategy-constrain: #ca8a04;
-  --color-strategy-expand: #16a34a;
+  --color-bg: #FEFBF6;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F5F0E8;
+  --color-text: #1C1917;
+  --color-text-muted: #78716C;
+  --color-accent: #C2410C;
+  --color-accent-hover: #9A3412;
+  --color-accent-light: #FFEDD5;
+  --color-border: #E7E0D8;
+  --color-kept: #15803D;
+  --color-kept-light: #DCFCE7;
+  --color-reverted: #B91C1C;
+  --color-reverted-light: #FEE2E2;
 
-  --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+  --color-strategy-sharpen: #1D4ED8;
+  --color-strategy-add-example: #7C3AED;
+  --color-strategy-remove: #EA580C;
+  --color-strategy-restructure: #0D9488;
+  --color-strategy-constrain: #B45309;
+  --color-strategy-expand: #15803D;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }

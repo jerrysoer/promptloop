@@ -13,7 +13,6 @@ function computeDiff(original: string, optimized: string): DiffLine[] {
   const m = oldLines.length;
   const n = newLines.length;
 
-  // LCS dynamic programming
   const dp: number[][] = Array.from({ length: m + 1 }, () =>
     Array(n + 1).fill(0),
   );
@@ -27,7 +26,6 @@ function computeDiff(original: string, optimized: string): DiffLine[] {
     }
   }
 
-  // Backtrack to build diff
   const stack: DiffLine[] = [];
   let i = m;
   let j = n;
@@ -66,19 +64,19 @@ export function PromptDiff({ original, optimized }: PromptDiffProps) {
   };
 
   return (
-    <div className="rounded-lg border border-gray-200">
-      <div className="flex items-center justify-between border-b border-gray-200 bg-card px-4 py-2">
-        <h3 className="text-sm font-semibold">Optimized Prompt</h3>
+    <div className="rounded-2xl border border-border bg-surface overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <h3 className="font-heading text-lg">Optimized Prompt</h3>
         <div className="flex gap-2">
           <button
             onClick={() => setShowDiff(!showDiff)}
-            className="rounded px-2.5 py-1 text-xs font-medium text-muted hover:bg-gray-200"
+            className="rounded-lg border border-border px-2.5 py-1 text-xs font-medium text-text-muted hover:bg-surface-alt"
           >
             {showDiff ? "Hide diff" : "Show diff"}
           </button>
           <button
             onClick={handleCopy}
-            className="rounded bg-accent px-2.5 py-1 text-xs font-medium text-white hover:bg-blue-700"
+            className="rounded-lg bg-accent px-2.5 py-1 text-xs font-medium text-white hover:bg-accent-hover"
           >
             {copied ? "Copied!" : "Copy"}
           </button>
@@ -92,14 +90,18 @@ export function PromptDiff({ original, optimized }: PromptDiffProps) {
                 key={i}
                 className={
                   line.type === "add"
-                    ? "bg-green-50 text-green-800"
+                    ? "bg-kept-light text-kept"
                     : line.type === "remove"
-                      ? "bg-red-50 text-red-800 line-through"
+                      ? "bg-reverted-light text-reverted line-through"
                       : ""
                 }
               >
-                <span className="mr-2 inline-block w-4 select-none text-right text-gray-300">
-                  {line.type === "add" ? "+" : line.type === "remove" ? "-" : " "}
+                <span className="mr-2 inline-block w-4 select-none text-right text-text-muted/40">
+                  {line.type === "add"
+                    ? "+"
+                    : line.type === "remove"
+                      ? "-"
+                      : " "}
                 </span>
                 {line.text || "\u00A0"}
               </div>

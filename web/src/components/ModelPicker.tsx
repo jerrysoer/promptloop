@@ -12,7 +12,7 @@ export function ModelPicker({ value, onChange }: ModelPickerProps) {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
+      className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
     >
       {MODELS.map((m) => (
         <option key={m.id} value={m.id}>

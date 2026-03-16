@@ -1,14 +1,14 @@
 export function ScoreBar({ value }: { value: number }) {
   const color =
     value >= 80
-      ? "bg-green-500"
+      ? "bg-kept"
       : value >= 60
-        ? "bg-yellow-500"
-        : "bg-red-500";
+        ? "bg-amber-500"
+        : "bg-reverted";
 
   return (
     <div className="flex items-center gap-2">
-      <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200">
+      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-surface-alt">
         <div
           className={`h-full rounded-full ${color}`}
           style={{ width: `${value}%` }}

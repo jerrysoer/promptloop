@@ -30,7 +30,6 @@ export function RunHeader({
       const interval = setInterval(update, 1000);
       return () => clearInterval(interval);
     }
-    // Freeze elapsed on completion/error
     update();
     return undefined;
   }, [status, startedAt]);
@@ -39,12 +38,12 @@ export function RunHeader({
   const seconds = elapsed % 60;
   const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
-  const statusColor =
+  const statusStyles =
     status === "completed"
-      ? "bg-green-100 text-green-700"
+      ? "bg-kept-light text-kept"
       : status === "error"
-        ? "bg-red-100 text-red-700"
-        : "bg-blue-100 text-blue-700";
+        ? "bg-reverted-light text-reverted"
+        : "bg-accent-light text-accent";
 
   const statusLabel =
     status === "connecting"
@@ -56,28 +55,28 @@ export function RunHeader({
           : "Error";
 
   return (
-    <div className="flex items-center gap-6 rounded-lg bg-card p-4">
+    <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-6 rounded-2xl bg-surface border border-border p-4">
       <span
-        className={`rounded-full px-3 py-1 text-sm font-semibold ${statusColor}`}
+        className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}
       >
         {statusLabel}
       </span>
-      <div className="text-sm text-muted">
-        <span className="font-mono">{timeStr}</span> elapsed
+      <div className="text-sm text-text-muted">
+        <span className="font-mono">{timeStr}</span>
       </div>
-      <div className="text-sm text-muted">
-        Iteration{" "}
-        <span className="font-mono font-semibold text-gray-900">
+      <div className="text-sm text-text-muted">
+        <span className="font-mono font-semibold text-text">
           {currentIteration}
         </span>
-        {" / "}
+        <span className="mx-0.5">/</span>
         <span className="font-mono">{maxIterations}</span>
+        <span className="ml-1">iters</span>
       </div>
-      <div className="text-sm text-muted">
-        Cost{" "}
-        <span className="font-mono font-semibold text-gray-900">
-          ${totalCost.toFixed(4)}
+      <div className="text-sm text-text-muted">
+        <span className="font-mono font-semibold text-text">
+          ${totalCost.toFixed(2)}
         </span>
+        <span className="ml-1">cost</span>
       </div>
     </div>
   );
