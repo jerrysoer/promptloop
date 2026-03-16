@@ -35,17 +35,23 @@ export function SetupForm() {
   const [maxCostUsd, setMaxCostUsd] = useState(5);
   const [dimensions, setDimensions] = useState<Array<{ name: string; weight: number; criteria: string }>>([]);
   const [isImageGen, setIsImageGen] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isMaxModel = modelId.startsWith("max-");
 
   const canAdvance =
     step === 0
       ? prompt.trim().length > 0
       : step === 1
         ? testCases.trim().length > 0 && !suggesting
-        : true; // Strategy (step 2) and Settings (step 3) are always advanceable
+        : step === 3
+          ? isMaxModel || apiKey.trim().length > 0
+          : true; // Strategy (step 2) is always advanceable
 
   const handleSuggestCases = async () => {
     if (!prompt.trim()) return;
@@ -56,7 +62,7 @@ export function SetupForm() {
       const res = await fetch("/api/suggest-cases", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, apiKey: apiKey.trim() || undefined }),
       });
 
       const data = await res.json();
@@ -106,7 +112,6 @@ export function SetupForm() {
         throw new Error("Test cases must be a non-empty array");
       }
 
-      const isMaxModel = modelId.startsWith("max-");
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -119,6 +124,7 @@ export function SetupForm() {
           maxCostUsd: isMaxModel ? 999 : maxCostUsd,
           strategyDoc: strategyDoc.trim() || undefined,
           dimensions: dimensions.length > 0 ? dimensions : undefined,
+          apiKey: apiKey.trim() || undefined,
         }),
       });
 
@@ -340,6 +346,33 @@ export function SetupForm() {
               </label>
               <ModelPicker value={modelId} onChange={setModelId} onModeChange={setIsImageGen} />
             </div>
+
+            {!isMaxModel && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">
+                  API Key
+                </label>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder={modelId.startsWith("gpt-") || modelId.startsWith("dall-e") ? "sk-..." : "sk-ant-..."}
+                    className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 pr-16 text-sm font-mono focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-muted hover:text-text"
+                  >
+                    {showApiKey ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <p className="mt-1.5 text-xs text-text-muted">
+                  Your key is sent per-request and never stored on disk or logged.
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>

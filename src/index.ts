@@ -25,4 +25,4 @@ export { generateMutation, type MutatorOptions } from "./core/mutator.js";
 export { run, type RunOptions, type StrategyStats } from "./core/runner.js";
 export { appendIteration, readHistory, hashPrompt, rebuildState, type RebuiltState } from "./core/history.js";
 export { generateSVG, generatePNG } from "./core/chart.js";
-export { complete, toolUse } from "./core/llm.js";
+export { complete, toolUse, ANTHROPIC_COSTS, OPENAI_COSTS, estimateCost } from "./core/llm.js";

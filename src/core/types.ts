@@ -99,6 +99,7 @@ export interface RunReport {
   totalCostUsd: number;
   bestIteration: number;
   history: IterationResult[];
+  originalPrompt?: string;
   /** Why the run stopped */
   stopReason?: StopReason;
   /** Budget ceiling for cost projection in UI */

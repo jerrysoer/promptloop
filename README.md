@@ -1,6 +1,30 @@
 # PromptLoop
 
-Autonomous prompt optimizer using the Karpathy autoresearch pattern. Give it a prompt and test cases — it will iteratively mutate, score, and improve your prompt.
+**Autonomous prompt optimizer.** Give it a prompt and test cases — it will iteratively mutate, score, and improve your prompt using the Karpathy autoresearch pattern.
+
+[![npm version](https://img.shields.io/npm/v/promptloop)](https://www.npmjs.com/package/promptloop)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+> **Try the live demo** at [promptloop.vercel.app](https://promptloop.vercel.app)
+
+### Before / After
+
+| | Score |
+|---|---|
+| **Original prompt** (hand-written) | 55 / 100 |
+| **Optimized prompt** (15 iterations, $1.40) | 82 / 100 |
+
+### PromptLoop vs. Alternatives
+
+| Feature | PromptLoop | DSPy | PromptFoo | OpenAI Optimizer |
+|---|---|---|---|---|
+| Optimizes individual prompts | Yes | No (LLM programs) | No (testing only) | Yes |
+| TypeScript-native | Yes | No (Python) | Yes | No (Python) |
+| Works with any model | Yes | Yes | Yes | OpenAI only |
+| CLI + Web UI | Yes | CLI only | CLI + UI | API only |
+| Mutation strategies | 6 strategies | Bootstrapping | N/A | Gradient-free |
+| Real-time progress | SSE streaming | No | No | No |
+| Self-hostable | Yes | Yes | Yes | No |
 
 ```
 promptloop init linkedin-hooks
@@ -152,9 +176,12 @@ One mutation per iteration. The optimizer learns from history — if a strategy 
 ## CLI Reference
 
 ```bash
-promptloop init [template]     # Scaffold a project (templates: linkedin-hooks, blank)
-promptloop run [options]       # Run optimization loop
-promptloop eval [options]      # Score current prompt (no optimization)
+promptloop init [template]       # Scaffold a project (templates: linkedin-hooks, blank)
+promptloop run [options]         # Run optimization loop
+promptloop eval [options]        # Score current prompt (no optimization)
+promptloop generate-tests [opt]  # Generate test cases from a prompt using AI
+promptloop diff [options]        # Show diff between original and optimized prompt
+promptloop estimate [options]    # Estimate cost for an optimization run
 
 # Run options
   -p, --prompt <path>      # Prompt file (default: prompt.md)
@@ -213,7 +240,7 @@ PromptFoo tests prompts. PromptLoop optimizes them. They are complementary — u
 Yes — set `baseUrl` in your model config to point to any OpenAI-compatible API (Ollama, vLLM, etc.).
 
 **Can I resume a failed run?**
-Not yet — but the JSONL history file survives crashes, so you can inspect progress. Resume is planned for v0.2.
+Yes — use the "Continue Run" button in the web UI. The CLI supports resume via the JSONL history file that survives crashes.
 
 ## License
 

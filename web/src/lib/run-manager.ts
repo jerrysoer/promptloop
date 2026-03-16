@@ -15,6 +15,7 @@ import type {
   ModelConfig,
 } from "promptloop";
 import { MODELS } from "./models";
+import { sanitizeError } from "./sanitize";
 
 // ── Types ───────────────────────────────────────────────────
 
@@ -70,6 +71,8 @@ export interface StartRunParams {
   resumeFromRunId?: string;
   /** Scoring dimensions for rubric mode */
   dimensions?: Array<{ name: string; weight: number; criteria: string }>;
+  /** User-provided API key — never persisted to disk */
+  apiKey?: string;
 }
 
 // ── State (persisted on globalThis to survive HMR in dev) ───
@@ -84,7 +87,9 @@ function getActiveRuns(): Map<string, ActiveRun> {
   return g[globalKey] as Map<string, ActiveRun>;
 }
 
-const RUNS_DIR = join(process.cwd(), "..", "runs");
+const RUNS_DIR = process.env.VERCEL
+  ? "/tmp/promptloop-runs"
+  : join(process.cwd(), "..", "runs");
 
 // ── Public API ──────────────────────────────────────────────
 
@@ -142,7 +147,11 @@ export function startRun(params: StartRunParams): string {
     maxCostUsd: params.maxCostUsd,
   }, null, 2));
 
-  const modelConfig = resolveModel(effectiveModelId);
+  const baseModelConfig = resolveModel(effectiveModelId);
+  // Inject user-provided API key into model configs (never written to disk)
+  const modelConfig = params.apiKey
+    ? { ...baseModelConfig, apiKey: params.apiKey }
+    : baseModelConfig;
 
   const config: PromptLoopConfig = {
     targetModel: modelConfig,
@@ -233,10 +242,10 @@ export function startRun(params: StartRunParams): string {
     })
     .catch((err) => {
       activeRun.status = "error";
-      activeRun.error = String(err);
+      activeRun.error = sanitizeError(String(err));
 
       const event =
-        `event: run_error\ndata: ${JSON.stringify({ error: String(err) })}\n\n`;
+        `event: run_error\ndata: ${JSON.stringify({ error: sanitizeError(String(err)) })}\n\n`;
       for (const listener of activeRun.listeners) {
         listener(event);
       }

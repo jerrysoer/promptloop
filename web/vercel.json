@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd .. && npm run build && cd web && npm run build",
+  "functions": {
+    "src/app/api/run/**/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/suggest-cases/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}

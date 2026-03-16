@@ -56,6 +56,7 @@ export async function run(options: RunOptions): Promise<RunReport> {
 
   // Load inputs
   let currentPrompt = readFileSync(promptPath, "utf-8");
+  const originalPrompt = currentPrompt;
   const testCases: TestCase[] = JSON.parse(
     readFileSync(testCasesPath, "utf-8"),
   );
@@ -290,6 +291,7 @@ export async function run(options: RunOptions): Promise<RunReport> {
     totalCostUsd: totalCost,
     bestIteration,
     history,
+    originalPrompt,
     stopReason,
     maxCostUsd: config.maxCostUsd,
     strategyStats,
