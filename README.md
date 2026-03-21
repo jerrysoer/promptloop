@@ -8,6 +8,10 @@
 
 > **Try the live demo** at [honeprompt.vercel.app](https://honeprompt.vercel.app)
 
+<p align="center">
+  <img src="demo.svg" alt="HonePrompt CLI demo — optimizing a LinkedIn hooks prompt from 55 to 82 in 5 iterations" width="720">
+</p>
+
 ### Before / After
 
 | | Score |

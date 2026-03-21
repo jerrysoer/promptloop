@@ -264,7 +264,8 @@ function runCLI(args: string[], stdin: string): Promise<string> {
 
     proc.on("close", (code) => {
       if (code !== 0) {
-        reject(new Error(`Claude CLI exited with code ${code}: ${stderr}`));
+        const detail = stderr || stdout || "(no output)";
+        reject(new Error(`Claude CLI exited with code ${code}: ${detail}`));
       } else {
         resolve(stdout);
       }

@@ -8,3 +8,6 @@ dist/
 .DS_Store
 .env.local
 .vercel
+.capture-runs/
+demo.gif
+supabase/.temp/

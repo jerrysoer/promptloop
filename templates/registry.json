@@ -15,10 +15,10 @@
     "estimatedCost": "$2-5 (25 iterations)",
     "source": "official",
     "sampleResults": {
-      "baseline": "TBD",
-      "final": "TBD",
-      "improvement": "TBD",
-      "iterations": "TBD"
+      "baseline": "86 / 100",
+      "final": "90 / 100",
+      "improvement": "+4 points (86 → 90)",
+      "iterations": "3"
     }
   },
   {
@@ -84,10 +84,10 @@
     "estimatedCost": "$1-3 (25 iterations)",
     "source": "official",
     "sampleResults": {
-      "baseline": "TBD",
-      "final": "TBD",
-      "improvement": "TBD",
-      "iterations": "TBD"
+      "baseline": "86 / 100",
+      "final": "95 / 100",
+      "improvement": "+9 points (86 → 95)",
+      "iterations": "1"
     }
   },
   {
@@ -129,10 +129,10 @@
     "estimatedCost": "$1-3 (25 iterations)",
     "source": "official",
     "sampleResults": {
-      "baseline": "TBD",
-      "final": "TBD",
-      "improvement": "TBD",
-      "iterations": "TBD"
+      "baseline": "75 / 100",
+      "final": "89 / 100",
+      "improvement": "+14 points (75 → 89)",
+      "iterations": "5"
     }
   },
   {

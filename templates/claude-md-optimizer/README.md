@@ -22,7 +22,7 @@ Optimizes a prompt that generates CLAUDE.md instruction files for AI coding assi
 
 | Metric | Value |
 |--------|-------|
-| Baseline Score | TBD |
-| Final Score | TBD |
-| Improvement | TBD |
-| Iterations | TBD |
+| Baseline Score | 86 / 100 |
+| Final Score | 90 / 100 |
+| Improvement | +4 points (86 → 90) |
+| Iterations | 3 |

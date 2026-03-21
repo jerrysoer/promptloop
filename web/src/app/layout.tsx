@@ -16,16 +16,27 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000",
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "https://honeprompt-jerrysoer.vercel.app",
   ),
   openGraph: {
     title: "HonePrompt — Autonomous Prompt Optimizer",
     description:
       "Iteratively mutate, score, and improve your LLM prompts.",
     type: "website",
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "HonePrompt — Autonomous Prompt Optimizer",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    images: ["/api/og"],
   },
 };
 

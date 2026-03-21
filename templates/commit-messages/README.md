@@ -22,7 +22,7 @@ Optimizes a commit message-writing prompt. The prompt takes a description of cha
 
 | Metric | Value |
 |--------|-------|
-| Baseline Score | TBD |
-| Final Score | TBD |
-| Improvement | TBD |
-| Iterations | TBD |
+| Baseline Score | 86 / 100 |
+| Final Score | 95 / 100 |
+| Improvement | +9 points (86 → 95) |
+| Iterations | 1 |

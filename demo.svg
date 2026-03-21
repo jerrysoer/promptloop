@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', Menlo, Monaco, monospace" font-size="13">
+  <!-- Terminal window -->
+  <rect width="820" height="520" rx="10" fill="#1C1917"/>
+  <!-- Title bar -->
+  <rect width="820" height="36" rx="10" fill="#292524"/>
+  <rect y="26" width="820" height="10" fill="#292524"/>
+  <!-- Traffic lights -->
+  <circle cx="20" cy="18" r="6" fill="#EF4444"/>
+  <circle cx="40" cy="18" r="6" fill="#F59E0B"/>
+  <circle cx="60" cy="18" r="6" fill="#22C55E"/>
+  <!-- Title -->
+  <text x="410" y="23" fill="#A8A29E" text-anchor="middle" font-size="12">honeprompt run</text>
+
+  <!-- Terminal content -->
+  <g transform="translate(20, 52)" fill="#E7E5E4" font-size="13.5" xml:space="preserve">
+    <!-- Command -->
+    <text y="0"><tspan fill="#22C55E">$</tspan> honeprompt run --iterations 5</text>
+
+    <!-- Config line -->
+    <text y="28" fill="#78716C">Provider: anthropic  Model: claude-sonnet-4-5  Budget: $5.00</text>
+    <text y="48" fill="#78716C">Template: linkedin-hooks  Test cases: 10  Strategy: program.md</text>
+
+    <!-- Separator -->
+    <text y="72" fill="#44403C">────────────────────────────────────────────────────────────</text>
+
+    <!-- Baseline -->
+    <text y="100"><tspan fill="#78716C">[0/5]</tspan><tspan fill="#60A5FA"> BASELINE</tspan>     score: <tspan fill="#FBBF24">55.0</tspan>   cost: $0.12</text>
+
+    <!-- Iterations -->
+    <text y="126"><tspan fill="#78716C">[1/5]</tspan><tspan fill="#F87171"> REVERTED</tspan>     score: <tspan fill="#78716C">52.3</tspan>   cost: $0.24   strategy: remove</text>
+    <text y="152"><tspan fill="#78716C">[2/5]</tspan><tspan fill="#4ADE80"> KEPT    </tspan>     score: <tspan fill="#4ADE80">63.0</tspan>   cost: $0.38   strategy: sharpen</text>
+    <text y="178"><tspan fill="#78716C">[3/5]</tspan><tspan fill="#4ADE80"> KEPT    </tspan>     score: <tspan fill="#4ADE80">71.5</tspan>   cost: $0.52   strategy: add_example</text>
+    <text y="204"><tspan fill="#78716C">[4/5]</tspan><tspan fill="#F87171"> REVERTED</tspan>     score: <tspan fill="#78716C">68.1</tspan>   cost: $0.66   strategy: expand</text>
+    <text y="230"><tspan fill="#78716C">[5/5]</tspan><tspan fill="#4ADE80"> KEPT    </tspan>     score: <tspan fill="#4ADE80">82.0</tspan>   cost: $0.80   strategy: constrain</text>
+
+    <!-- Separator -->
+    <text y="258" fill="#44403C">────────────────────────────────────────────────────────────</text>
+
+    <!-- Results summary -->
+    <text y="286" fill="#C2410C" font-weight="bold" font-size="14">Optimization complete</text>
+
+    <text y="314"><tspan fill="#78716C">Baseline:</tspan>  <tspan fill="#FBBF24">55</tspan> / 100</text>
+    <text y="340"><tspan fill="#78716C">Final:   </tspan>  <tspan fill="#4ADE80" font-weight="bold">82</tspan> / 100  <tspan fill="#4ADE80">(+27 points)</tspan></text>
+    <text y="366"><tspan fill="#78716C">Cost:    </tspan>  $1.40</text>
+    <text y="392"><tspan fill="#78716C">Stop:    </tspan>  max iterations reached</text>
+
+    <text y="424" fill="#78716C">Output: .honeprompt/prompt.md  .honeprompt/progress.png  .honeprompt/report.json</text>
+
+    <!-- Cursor -->
+    <text y="454"><tspan fill="#22C55E">$</tspan> <tspan fill="#E7E5E4">_</tspan></text>
+  </g>
+</svg>

@@ -29,6 +29,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
+    "capture-results": "npx tsx scripts/capture-results.ts",
     "prepublishOnly": "npm run build:registry && npm run build"
   },
   "keywords": [

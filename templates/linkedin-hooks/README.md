@@ -22,7 +22,7 @@ Optimizes a LinkedIn hook-writing prompt. The prompt takes a post topic as input
 
 | Metric | Value |
 |--------|-------|
-| Baseline Score | TBD |
-| Final Score | TBD |
-| Improvement | TBD |
-| Iterations | TBD |
+| Baseline Score | 75 / 100 |
+| Final Score | 89 / 100 |
+| Improvement | +14 points (75 → 89) |
+| Iterations | 5 |
