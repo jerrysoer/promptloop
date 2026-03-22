@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { TemplateCard } from "@/components/TemplateCard";
 import { TemplateFilter } from "@/components/TemplateFilter";
+import { getTemplatesDir } from "@/lib/templates-path";
 
 interface RegistryEntry {
   id: string;
@@ -14,7 +15,7 @@ interface RegistryEntry {
 }
 
 function loadRegistry(): RegistryEntry[] {
-  const registryPath = join(process.cwd(), "..", "templates", "registry.json");
+  const registryPath = join(getTemplatesDir(), "registry.json");
   if (!existsSync(registryPath)) return [];
   try {
     return JSON.parse(readFileSync(registryPath, "utf-8"));

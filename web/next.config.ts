@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
-import { join } from "node:path";
 
 const nextConfig: NextConfig = {
-  outputFileTracingRoot: join(__dirname, ".."),
   serverExternalPackages: ["honeprompt", "sharp"],
   webpack: (config, { isServer }) => {
     if (isServer) {

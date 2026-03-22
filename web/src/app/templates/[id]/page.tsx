@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { TemplateTracker } from "@/components/TemplateTracker";
+import { getTemplatesDir } from "@/lib/templates-path";
 
-const TEMPLATES_DIR = join(process.cwd(), "..", "templates");
+const TEMPLATES_DIR = getTemplatesDir();
 const SAFE_ID = /^[a-z0-9-]+$/;
 const BLOCKED = new Set(["_template", "blank"]);
 

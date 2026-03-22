@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { getTemplatesDir } from "@/lib/templates-path";
 
-const TEMPLATES_DIR = join(process.cwd(), "..", "templates");
+const TEMPLATES_DIR = getTemplatesDir();
 
 export async function GET() {
   const registryPath = join(TEMPLATES_DIR, "registry.json");
